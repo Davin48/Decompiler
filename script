@@ -130,7 +130,9 @@ local AllOptions = {
 	IgnoreNotArchivable = true,
 	IgnoreSharedStrings = true,
     AlternativeWritefile = false,
-	IgnoreDefaultPlayerScripts = false
+	IgnoreDefaultPlayerScripts = false,
+    TreatUnionsAsParts = false
+
 
 }
 
