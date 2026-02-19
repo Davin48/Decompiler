@@ -1,0 +1,218 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+--// Create UI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CleanSaveUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game:GetService("CoreGui")
+
+--// Main Container
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 420, 0, 480)
+Main.Position = UDim2.new(0.5, -210, 0.5, -240)
+Main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0,16)
+
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Color = Color3.fromRGB(45,45,45)
+Stroke.Thickness = 1
+
+--// Top Bar
+local Top = Instance.new("Frame")
+Top.Size = UDim2.new(1,0,0,50)
+Top.BackgroundColor3 = Color3.fromRGB(25,25,25)
+Top.BorderSizePixel = 0
+Top.Parent = Main
+
+Instance.new("UICorner", Top).CornerRadius = UDim.new(0,16)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,1,0)
+Title.BackgroundTransparency = 1
+Title.Text = "Decompiler discord.gg/hexMMSJ9Fg"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.Parent = Top
+
+--// Options Container
+local OptionsFrame = Instance.new("ScrollingFrame")
+OptionsFrame.Size = UDim2.new(1,-20,1,-130)
+OptionsFrame.Position = UDim2.new(0,10,0,60)
+OptionsFrame.CanvasSize = UDim2.new(0,0,0,0)
+OptionsFrame.ScrollBarImageTransparency = 1
+OptionsFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+OptionsFrame.BorderSizePixel = 0
+OptionsFrame.Parent = Main
+
+Instance.new("UICorner", OptionsFrame).CornerRadius = UDim.new(0,12)
+
+local Layout = Instance.new("UIListLayout", OptionsFrame)
+Layout.Padding = UDim.new(0,8)
+
+--// Execute Button
+local Execute = Instance.new("TextButton")
+Execute.Size = UDim2.new(1,-20,0,40)
+Execute.Position = UDim2.new(0,10,1,-60)
+Execute.BackgroundColor3 = Color3.fromRGB(35,35,35)
+Execute.Text = "Save Place"
+Execute.TextColor3 = Color3.fromRGB(255,255,255)
+Execute.Font = Enum.Font.GothamBold
+Execute.TextSize = 14
+Execute.Parent = Main
+
+Instance.new("UICorner", Execute).CornerRadius = UDim.new(0,12)
+
+local ExecStroke = Instance.new("UIStroke", Execute)
+ExecStroke.Color = Color3.fromRGB(60,60,60)
+
+--// Drag Function
+local UIS = game:GetService("UserInputService")
+local dragging, dragInput, dragStart, startPos
+
+Main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Main.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		Main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+--// SaveInstance Setup
+local Params = {
+	RepoURL = "https://raw.githubusercontent.com/luau/SynSaveInstance/main/",
+	SSI = "saveinstance"
+}
+
+local synsaveinstance = (loadstring or load)(
+	game:HttpGet(Params.RepoURL .. Params.SSI .. ".luau", true),
+	Params.SSI
+)()
+
+--// Options
+local AllOptions = {
+	ReadMe = true,
+	SafeMode = false,
+	AntiIdle = true,
+	ShowStatus = true,
+	scriptcache = true,
+	RemovePlayerCharacters = true,
+	IgnoreDefaultProperties = false,
+	IgnoreNotArchivable = true,
+	IgnoreSharedStrings = true,
+    AlternativeWritefile = false,
+	IgnoreDefaultPlayerScripts = false
+
+}
+
+local Options = {}
+
+--// Toggle Creator
+local function createToggle(name, default)
+	Options[name] = default
+	
+	local Holder = Instance.new("Frame")
+	Holder.Size = UDim2.new(1,-10,0,40)
+	Holder.BackgroundColor3 = Color3.fromRGB(30,30,30)
+	Holder.BorderSizePixel = 0
+	Holder.Parent = OptionsFrame
+	
+	Instance.new("UICorner", Holder).CornerRadius = UDim.new(0,10)
+	
+	local Label = Instance.new("TextLabel")
+	Label.Size = UDim2.new(0.7,0,1,0)
+	Label.Position = UDim2.new(0,10,0,0)
+	Label.BackgroundTransparency = 1
+	Label.Text = name
+	Label.Font = Enum.Font.Gotham
+	Label.TextSize = 14
+	Label.TextColor3 = Color3.fromRGB(255,255,255)
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	Label.Parent = Holder
+	
+	local Toggle = Instance.new("Frame")
+	Toggle.Size = UDim2.new(0,50,0,22)
+	Toggle.Position = UDim2.new(1,-60,0.5,-11)
+	Toggle.BackgroundColor3 = default and Color3.fromRGB(60,180,75) or Color3.fromRGB(40,40,40)
+	Toggle.Parent = Holder
+	Instance.new("UICorner", Toggle).CornerRadius = UDim.new(1,0)
+	
+	local Ball = Instance.new("Frame")
+	Ball.Size = UDim2.new(0,18,0,18)
+	Ball.Position = default and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)
+	Ball.BackgroundColor3 = Color3.fromRGB(255,255,255)
+	Ball.Parent = Toggle
+	Instance.new("UICorner", Ball).CornerRadius = UDim.new(1,0)
+	
+	local Button = Instance.new("TextButton")
+	Button.Size = UDim2.new(1,0,1,0)
+	Button.BackgroundTransparency = 1
+	Button.Text = ""
+	Button.Parent = Toggle
+	
+	Button.MouseButton1Click:Connect(function()
+		Options[name] = not Options[name]
+		
+		if Options[name] then
+			Toggle.BackgroundColor3 = Color3.fromRGB(60,180,75)
+			Ball:TweenPosition(UDim2.new(1,-20,0.5,-9),"Out","Quad",0.15,true)
+		else
+			Toggle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+			Ball:TweenPosition(UDim2.new(0,2,0.5,-9),"Out","Quad",0.15,true)
+		end
+	end)
+end
+
+--// Generate Toggles
+for name,value in pairs(AllOptions) do
+	createToggle(name,value)
+end
+
+--// Auto Resize Canvas
+Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	OptionsFrame.CanvasSize = UDim2.new(0,0,0,Layout.AbsoluteContentSize.Y + 10)
+end)
+
+--// Execute
+Execute.MouseButton1Click:Connect(function()
+	Execute.Text = "Saving..."
+	
+	task.spawn(function()
+		pcall(function()
+			synsaveinstance(Options)
+		end)
+		
+		Execute.Text = "Saved!"
+		task.wait(2)
+		Execute.Text = "Save Place"
+	end)
+end)
